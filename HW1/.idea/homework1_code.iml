@@ -6,13 +6,10 @@
       <excludeFolder url="file://$MODULE_DIR$/coinLine/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/nJugsProblem/.venv" />
     </content>
-    <orderEntry type="jdk" jdkName="~\Downloads\homework1_code\homework1_codedone\homework1_code\.venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="~\Documents\CSC665\HW1\.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
-  <component name="PackageRequirementsSettings" />
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />
   </component>
-  <component name="ReSTService" />
-  <component name="TestRunnerService" />
 </module>

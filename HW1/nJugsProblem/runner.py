@@ -32,7 +32,15 @@ def run_case(case):
         bt_res = bt.solve()
     except RecursionError as e:
         print(f"Caught a RecursionError: {e}")
-        bt_res = dict(best_cost=math.nan, best_path=[], found=False, expanded=0)
+        bt_res = dict(
+            best_cost=math.nan,
+            best_path=[],
+            found=False,
+            expanded=0,
+            b=math.nan,
+            D=None,
+            d=None
+        )
 
     end_time = time.perf_counter()
     bt_res["time"] = end_time - start_time
@@ -100,7 +108,17 @@ def pretty_print_result(res, show_paths=False):
     # for alg in ["bfs"]:
         r = res[alg]
         status = "FOUND" if r["found"] else "NO SOLUTION"
-        print(f"  [{alg.upper()}] {status} | cost={r['best_cost']} | expanded={r['expanded']} | time={r['time']:.6f}s")
+
+        print(
+            f"  [{alg.upper()}] {status} "
+            f"| cost={r['best_cost']} "
+            f"| expanded={r['expanded']} "
+            f"| b={r['b']:.2f} "
+            f"| D={r['D']} "
+            f"| d={r['d']} "
+            f"| time={r['time']:.6f}s"
+        )
+
         if show_paths and r["found"]:
             print(f"   Path length: {len(r['best_path'])-1}")
             print("   Path states:")
