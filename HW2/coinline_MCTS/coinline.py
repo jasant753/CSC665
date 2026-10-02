@@ -161,8 +161,10 @@ class MCTSNode:
 
 def _root_scores(state: State, root_player: str) -> Tuple[int, int]:
     """Return (root_score, opp_score) given a terminal state."""
+
     if root_player == "player":
         return state.pScore, state.aiScore
+
     return state.aiScore, state.pScore
 
 def terminal_reward(state, root_player, reward_mode="winloss"):
@@ -176,8 +178,14 @@ def terminal_reward(state, root_player, reward_mode="winloss"):
 
     Note: reward_mode is kept for compatibility, but only 'winloss' is supported.
     """
-    raise NotImplementedError
+    root_score, opp_score = _root_scores(state, root_player)
 
+    if root_score > opp_score:
+        return 1.0
+    elif root_score < opp_score:
+        return -1.0
+    else:
+        return 0.0
 
 def uct_score(child, parent_visits, c=math.sqrt(2)):
     """
@@ -185,42 +193,85 @@ def uct_score(child, parent_visits, c=math.sqrt(2)):
 
     child.W / child.N  +  c * sqrt( ln(parent_visits) / child.N )
     """
-    raise NotImplementedError
+
+    if child.N == 0:
+        return float("inf")
+
+    return child.W / child.N + c * math.sqrt(math.log(parent_visits) / child.N)
 
 
 def select_child_uct(node, c=math.sqrt(2)):
     """Return the child node with maximum UCT score."""
-    raise NotImplementedError
 
+    children = list(node.children.values())
+
+    best_child = children[0]
+    best_score = uct_score(best_child, node.N, c)
+
+    for child in children[1:]:
+        score = uct_score(child, node.N, c)
+
+        if score > best_score:
+            best_score = score
+            best_child = child
+
+    return best_child
 
 def expand(node):
     """
     Expand one untried action from node and return the new child node.
     """
-    raise NotImplementedError
 
+    action = node.untried_actions.pop(0)
+
+    new_state = succ(node.state, action)
+
+    child = MCTSNode(new_state, parent=node, parent_action=action)
+
+    node.children[action] = child
+
+    return child
 
 def rollout(state):
     """
     Default rollout policy: play uniformly random legal actions until terminal.
     Must NOT mutate the input state; rely on succ(state, action).
     """
-    raise NotImplementedError
+    current = state
 
+    while not terminal(current):
+        legal_actions = actions(current)
+        action = random.choice(legal_actions)
+        current = succ(current, action)
+
+    return current
 
 def backpropagate(node, reward):
     """
     Backpropagate reward up to the root, updating visit counts and total values.
     """
-    raise NotImplementedError
+    while node is not None:
+        node.N += 1
+        node.W += reward
+        node = node.parent
 
 
 def best_action(root):
     """
     Return the action from root corresponding to the most-visited child (or highest mean value).
     """
-    raise NotImplementedError
+    if not root.children:
+        return None
 
+    best_action = None
+    most_visits = -1
+
+    for action, child in root.children.items():
+        if child.N > most_visits:
+            most_visits = child.N
+            best_action = action
+
+    return best_action
 
 def mcts(state, budget=2000, reward_mode="winloss", c=math.sqrt(2)):
     """
@@ -231,4 +282,36 @@ def mcts(state, budget=2000, reward_mode="winloss", c=math.sqrt(2)):
 
     Returns: an action in actions(state), or None if state is terminal.
     """
-    raise NotImplementedError
+    if terminal(state):
+        return None
+
+    root_player = state.turn
+    root = MCTSNode(state)
+
+    for i in range(budget):
+
+        node = root
+
+        # SelectAndExpand
+        while not terminal(node.state):
+
+            if node.untried_actions:
+                node = expand(node)
+                break
+            else:
+                node = select_child_uct(node, c)
+
+        # Simulate
+        terminal_state = rollout(node.state)
+
+        reward = terminal_reward(
+            terminal_state,
+            root_player,
+            reward_mode
+        )
+
+        # Backpropagate
+        backpropagate(node, reward)
+
+    return best_action(root)
+
