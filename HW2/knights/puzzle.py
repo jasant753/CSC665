@@ -16,11 +16,21 @@ CKnave = Symbol("C is a Knave")
 # Puzzle 1
 # A says "I am both a knight and a knave."
 # ----------------------------------------
-##   write the statement(s) in PL 
-stat = None
+##   write the statement(s) in PL
+
+stat = And(AKnight, AKnave)
+
 ##   Fill in the knowledge base
 knowledge1 = And(
-    # TODO
+
+    # A is either a knight or a knave
+    Xor(AKnight, AKnave),
+
+    # If A is knight, what A says is true
+    Implication(AKnight, stat),
+
+    # If A is knave, what A says is false
+    Implication(AKnave, Not(stat))
 )
 # ----------------------------------------
 
@@ -28,11 +38,33 @@ knowledge1 = And(
 # A says "We are the same kind."
 # B says "We are of different kinds."
 # ----------------------------------------
-##   write the statement(s) in PL 
-stat = None
+##   write the statement(s) in PL
+
+statA = Or(And(AKnight, BKnight), And(AKnave, BKnave))
+
+statB = Or(And(AKnight, BKnave), And(AKnave, BKnight))
+
 ##   Fill in the knowledge base
 knowledge2 = And(
-    # TODO
+
+    # A is either a knight or a knave
+    Xor(AKnight, AKnave),
+
+    # B is either a knight or a knave
+    Xor(BKnight, BKnave),
+
+    # If A is a knight, what A says is true
+    Implication(AKnight, statA),
+
+    # If A is knave, what A says is false
+    Implication(AKnave, Not(statA)),
+
+    # If B is a knight, what B says is true
+    Implication(BKnight, statB),
+
+    # If B is knave, what B says is false
+    Implication(BKnave, Not(statB))
+
 )
 # ----------------------------------------
 
@@ -43,10 +75,53 @@ knowledge2 = And(
 # C says "A is a knight."
 # ----------------------------------------
 ##   write the statement(s) in PL 
-stat = None
+
+statA1 = AKnight
+statA2 = AKnave
+
+statB2 = CKnave
+
+statC = AKnight
+
 ##   Fill in the knowledge base
 knowledge3 = And(
-    # TODO
+    # A is either a knight or a knave
+    Xor(AKnight, AKnave),
+
+    # B is either a knight or a knave
+    Xor(BKnight, BKnave),
+
+    # C is either a knight or a knave
+    Xor(CKnight, CKnave),
+
+    # If B is a knight, the first thing B says is true (A says they are a knave)
+
+    # Then, If A is a knight, What A says is true
+    Implication(And(BKnight, AKnight), statA2),
+
+    # But if A is a knave, then what A says is false
+    Implication(And(BKnight, AKnave), Not(statA2)),
+
+    # If B is a knave, the first thing B says is false (A says they are a knight)
+
+    # Then, If A is a knight, What A says is true
+    Implication(And(BKnave, AKnight), statA1),
+
+    # But if A is a knave, then what A says is false
+    Implication(And(BKnave, AKnave), Not(statA1)),
+
+    # If B is a knight, the second thing B says is true
+    Implication(BKnight, statB2),
+
+    # If B is knave, the second thing B says is false
+    Implication(BKnave, Not(statB2)),
+
+    # If C is a knight, what C says is true
+    Implication(CKnight, statC),
+
+    # If C is knave, what C says is false
+    Implication(CKnave, Not(statC))
+
 )
 # ----------------------------------------
 
