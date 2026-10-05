@@ -116,6 +116,12 @@ def minimax(state: State, is_maximizing: bool):
         p1, p2 = utility(state)
         return (p2 - p1 if is_maximizing else p1 - p2), None
 
+    # Part c implementation
+    """
+        if terminal(state):
+            p1, p2 = utility(state)
+        return p2 - p1, None
+    """
     best_val = float("-inf") if is_maximizing else float("inf")
     best_action = None
 
