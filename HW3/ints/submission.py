@@ -33,6 +33,65 @@ def ints() -> Tuple[List[Formula], Formula]:
     formulas = []
     # BEGIN_YOUR_CODE (our solution is 16 lines of code, but don't worry if you deviate from this)
     # TODO
+
+    # (a) Each number x has exactly one successor, which is not equal to x.
+    # FOL: ∀x ∃y [Successor(x,y) ∧ ¬(x=y) ∧ ∀z(Successor(x,z) → z=y)]
+
+    formulas.append(
+        Forall('$x', Exists('$y', And(
+            And(Successor('$x', '$y'), Not(Equals('$x', '$y'))),
+            Forall('$z', Implies(Successor('$x', '$z'), Equals('$y', '$z')))
+        )))
+    )
+
+    # (b) Each number is either even or odd, but not both.
+    # FOL: ∀x [(Even(x) ∨ Odd(x)) ∧ ¬(Even(x) ∧ Odd(x))]
+
+    formulas.append(Forall('$x', Xor(Even('$x'), Odd('$x'))))
+
+    # (c) The successor of an even number is odd.
+    # FOL: ∀x ∀y [(Even(x) ∧ Successor(x,y)) → Odd(y)]
+
+    formulas.append(
+        Forall('$x', Forall('$y',
+            Implies(And(Even('$x'), Successor('$x', '$y')), Odd('$y'))
+        ))
+    )
+    # (d) The successor of an odd number is even.
+    # FOL: ∀x ∀y [(Odd(x) ∧ Successor(x,y)) → Even(y)]
+
+    formulas.append(
+        Forall('$x', Forall('$y',
+            Implies(And(Odd('$x'), Successor('$x', '$y')), Even('$y'))
+        ))
+    )
+
+    # (e) For every number x, the successor of x is larger than x.
+    # FOL: ∀x ∀y [Successor(x,y) → Larger(y,x)]
+
+    formulas.append(
+        Forall('$x', Forall('$y',
+            Implies(Successor('$x', '$y'), Larger('$y', '$x'))
+        ))
+    )
+
+    # (f) Larger is transitive: if x > y and y > z, then x > z.
+    # FOL: ∀x ∀y ∀z [(Larger(x,y) ∧ Larger(y,z)) → Larger(x,z)]
+
+    formulas.append(
+        Forall('$x', Forall('$y', Forall('$z',
+            Implies(
+                And(Larger('$x', '$y'), Larger('$y', '$z')),
+                Larger('$x', '$z')
+            )
+        )))
+    )
+
+    # Consequence: For each number, there exists an even number larger than it.
+    # FOL: ∀x ∃y [Even(y) ∧ Larger(y,x)]
+
+    query = Forall('$x', Exists('$y', And(Even('$y'), Larger('$y', '$x'))))
+
     # END_YOUR_CODE
     query = Forall('$x', Exists('$y', And(Even('$y'), Larger('$y', '$x'))))
     return formulas, query
